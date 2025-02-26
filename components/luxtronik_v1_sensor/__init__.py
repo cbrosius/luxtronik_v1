@@ -12,8 +12,9 @@ from esphome.const import (
     UNIT_EMPTY,
 )
 
-# The namespace must be the same as in the C++ code!
-luxtronik_v1_ns = cg.esphome_ns.namespace("luxtronik_v1_sensor")
+# Import the namespace from const.py
+from .const import luxtronik_v1_ns 
+
 # Declare the C++ class.
 LuxtronikV1Sensor = luxtronik_v1_ns.class_(
     "LuxtronikV1Sensor", cg.PollingComponent, uart.UARTDevice

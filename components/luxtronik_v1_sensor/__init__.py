@@ -1,5 +1,5 @@
 from esphome.components import sensor, uart
-from .luxtronik_v1_sensor import LuxtronikV1Sensor  # Import your Python class
+from .luxtronik_v1_sensor import luxtronik_v1_sensor  # Import your Python class
 
 DEPENDENCIES = ["uart"]
 

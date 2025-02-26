@@ -2,7 +2,7 @@ import esphome.codegen as cg
 from esphome.components import uart, sensor
 from esphome import core
 
-from .luxtronik_v1_sensor import luxtronik_v1_sensor
+import esphome.config_validation as cv
 
 DEPENDENCIES = ["uart"]
 
@@ -46,10 +46,16 @@ CONF_STATUS_BETRIEBSZUSTAND = "status_Betriebszustand"
 CONF_MODUS_HEIZUNG = "modus_Heizung"
 CONF_MODUS_WARMWASSER = "modus_Warmwasser"
 
+
+# Define your component class here
+# this part was missing in the files.
+luxtronik_v1_ns = cg.esphome_ns.namespace("luxtronik_v1")
+LuxtronikV1Sensor = luxtronik_v1_ns.class_("LuxtronikV1Sensor", cg.Component, cg.Parented.template(uart.UARTComponent))
+
 CONFIG_SCHEMA = cv.Schema(
     {
         cv.GenerateID(CONF_UART_ID): cv.use_id(uart.UARTComponent),
-        cv.GenerateID(): cv.declare_id(luxtronik_v1_sensor),
+        cv.GenerateID(): cv.declare_id(LuxtronikV1Sensor),
         cv.Optional(CONF_TEMP_VL): sensor.sensor_schema(),
         cv.Optional(CONF_TEMP_RL): sensor.sensor_schema(),
         cv.Optional(CONF_TEMP_RL_SOLL): sensor.sensor_schema(),

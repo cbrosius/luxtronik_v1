@@ -16,8 +16,8 @@ from esphome.const import (
 from .const import luxtronik_v1_ns 
 
 # Declare the C++ class.
-LuxtronikV1Sensor = luxtronik_v1_ns.class_(
-    "LuxtronikV1Sensor", cg.PollingComponent, uart.UARTDevice
+LuxtronikV1Component = luxtronik_v1_ns.class_(
+    "LuxtronikV1Component", cg.PollingComponent, uart.UARTDevice
 )
 
 DEPENDENCIES = ["uart"]
@@ -71,7 +71,7 @@ def luxtronik_v1_sensor_schema(is_binary=False, unit=UNIT_EMPTY, device_class=DE
 CONFIG_SCHEMA = cv.Schema(
     {
         cv.GenerateID(CONF_UART_ID): cv.use_id(uart.UARTComponent),
-        cv.GenerateID(): cv.declare_id(LuxtronikV1Sensor),
+        cv.GenerateID(): cv.declare_id(LuxtronikV1Component),
         cv.Optional(CONF_TEMP_VL): luxtronik_v1_sensor_schema(unit=UNIT_CELSIUS, device_class=DEVICE_CLASS_TEMPERATURE, state_class=STATE_CLASS_MEASUREMENT),
         cv.Optional(CONF_TEMP_RL): luxtronik_v1_sensor_schema(unit=UNIT_CELSIUS, device_class=DEVICE_CLASS_TEMPERATURE, state_class=STATE_CLASS_MEASUREMENT),
         cv.Optional(CONF_TEMP_RL_SOLL): luxtronik_v1_sensor_schema(unit=UNIT_CELSIUS, device_class=DEVICE_CLASS_TEMPERATURE, state_class=STATE_CLASS_MEASUREMENT),

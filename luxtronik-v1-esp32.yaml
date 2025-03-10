@@ -19,7 +19,12 @@ logger:
 
 web_server:
 
+# Enable Home Assistant API
 api:
+
+# Enable MQTT
+#mqtt:
+#  broker: <your mqtt broker ip>
 
 ota:
   platform: esphome

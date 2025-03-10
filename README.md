@@ -3,14 +3,14 @@ Luxtronik_v1 ESPHome External Component
 
 # English version
 This is a ESPHome ExternalComponent, that is able to read values from a Alpha Innotec Luxtronic_v1 Heatpump via Serial Connection (RS232)
-and send the values to Homeassistant via Homeassistant-API
+and send the values to Homeassistant via Homeassistant-API or to other Smarthome Systems via MQTT
 
 HowTo:
 1. Edit luxtronik_v1.yaml according to your needs
 3. Compile and Upload to your Sensor
 
 # German Version
-Mit einem ESP wird eine serielle Verbindung zur Luxtronik v1 Wärmepumpensteuerung hergestellt, es werden Werte ausgelesen und über die ESPHOME API für Home Assistant bereitgestellt.
+Mit einem ESP wird eine serielle Verbindung zur Luxtronik v1 Wärmepumpensteuerung hergestellt, es werden Werte ausgelesen und über die ESPHOME API für Home Assistant oder über MQTT für andere Smarthome Systeme bereitgestellt.
 
 ## Voraussetzungen
 
@@ -93,11 +93,6 @@ Du brauchst eine Datei secrets.yaml in der du insbesondere die Werte für das WL
 # Your Wi-Fi SSID and password
 wifi_ssid: "<SSID>"
 wifi_password: "<WPA-Key>"
-#only if you use MQTT instead of ESPHOME API
-#mqtt_broker: "<IP/Hostname>"
-#mqtt_user: "<mqtt user name>"
-#mqtt_password: "<mqtt password>"
-
 ```
 Wenn du die Home Assistant für die Erstellung von ESPHOME verwendest, dann hast du wahrscheinlich schon eine passende secrets.yaml.
 

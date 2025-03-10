@@ -22,8 +22,8 @@ ota:
 
 uart:
   id: uart_bus
-  rx_pin: GPIO5
-  tx_pin: GPIO6
+  rx_pin: D5
+  tx_pin: D6
   baud_rate: 57600
   data_bits: 8
   parity: NONE

@@ -1,3 +1,6 @@
+```yaml
+# example configuration:
+
 esphome:
   name: luxtronik_v1
   friendly_name: Luxtronik_v1 Waermepumpe
@@ -160,3 +163,4 @@ button:
       then:
         - uart.write:
             data: "1100\r\n"
+```

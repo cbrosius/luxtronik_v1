@@ -1,6 +1,6 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import uart, sensor
+from esphome.components import uart, sensor, text_sensor
 from esphome.const import (
     CONF_ID,
     DEVICE_CLASS_TEMPERATURE,
@@ -9,6 +9,8 @@ from esphome.const import (
 )
 
 DEPENDENCIES = ["uart"]
+AUTO_LOAD = ["sensor","text_sensor"]
+
 CONF_TEMPERATUR_VORLAUF = "temperatur_vorlauf"
 CONF_TEMPERATUR_RUECKLAUF = "temperatur_ruecklauf"
 CONF_TEMPERATUR_RUECKLAUF_SOLL = "temperatur_ruecklauf_soll"
@@ -40,6 +42,35 @@ CONF_AUSGANG_VERDICHTER_2 = "ausgang_verdichter_2"
 CONF_AUSGANG_ZIRKULATIONSPUMPE = "ausgang_zirkulationspumpe"
 CONF_AUSGANG_ZWEITER_WAERMEERZEUGER = "ausgang_zweiter_waermeerzeuger"
 CONF_AUSGANG_ZWEITER_WAERMEERZEUGER_STOERUNG = "ausgang_zweiter_waermeerzeuger_stoerung"
+CONF_MODUS_HEIZUNG_NUMERISCH = "modus_heizung_numerisch"
+CONF_MODUS_HEIZUNG = "modus_heizung"
+CONF_MODUS_WARMWASSER_NUMERISCH = "modus_warmwasser_numerisch"
+CONF_MODUS_WARMWASSER = "modus_warmwasser"
+
+# Add status sensor constants after mode sensors
+CONF_STATUS_ANLAGENTYP = "status_anlagentyp"
+CONF_STATUS_SOFTWAREVERSION = "status_softwareversion"
+CONF_STATUS_BIVALENZSTUFE = "status_bivalenzstufe"
+CONF_STATUS_BETRIEBSZUSTAND_NUMERISCH = "status_betriebszustand_numerisch"
+CONF_STATUS_BETRIEBSZUSTAND = "status_betriebszustand"
+CONF_STATUS_LETZTER_START = "status_letzter_start"
+
+# Add error sensor constants after status sensors
+CONF_ERROR0_FEHLERCODE = "error0_fehlercode"
+CONF_ERROR0_FEHLERBESCHREIBUNG = "error0_fehlerbeschreibung"
+CONF_ERROR0_ZEITPUNKT = "error0_zeitpunkt"
+CONF_ERROR1_FEHLERCODE = "error1_fehlercode"
+CONF_ERROR1_FEHLERBESCHREIBUNG = "error1_fehlerbeschreibung"
+CONF_ERROR1_ZEITPUNKT = "error1_zeitpunkt"
+CONF_ERROR2_FEHLERCODE = "error2_fehlercode"
+CONF_ERROR2_FEHLERBESCHREIBUNG = "error2_fehlerbeschreibung"
+CONF_ERROR2_ZEITPUNKT = "error2_zeitpunkt"
+CONF_ERROR3_FEHLERCODE = "error3_fehlercode"
+CONF_ERROR3_FEHLERBESCHREIBUNG = "error3_fehlerbeschreibung"
+CONF_ERROR3_ZEITPUNKT = "error3_zeitpunkt"
+CONF_ERROR4_FEHLERCODE = "error4_fehlercode"
+CONF_ERROR4_FEHLERBESCHREIBUNG = "error4_fehlerbeschreibung"
+CONF_ERROR4_ZEITPUNKT = "error4_zeitpunkt"
 
 luxtronik_v1_component_ns = cg.esphome_ns.namespace("luxtronik_v1_component")
 LuxtronikV1Component = luxtronik_v1_component_ns.class_(
@@ -58,6 +89,8 @@ INPUT_OUTPUT_SCHEMA = sensor.sensor_schema(
     unit_of_measurement="", # no unit
     accuracy_decimals=0,    # no decimals
 )
+
+TEXT_SENSOR_SCHEMA = text_sensor.text_sensor_schema()
 
 CONFIG_SCHEMA = (
     cv.Schema({
@@ -93,6 +126,33 @@ CONFIG_SCHEMA = (
         cv.Optional(CONF_AUSGANG_ZIRKULATIONSPUMPE): INPUT_OUTPUT_SCHEMA,
         cv.Optional(CONF_AUSGANG_ZWEITER_WAERMEERZEUGER): INPUT_OUTPUT_SCHEMA,
         cv.Optional(CONF_AUSGANG_ZWEITER_WAERMEERZEUGER_STOERUNG): INPUT_OUTPUT_SCHEMA,
+        cv.Optional(CONF_MODUS_HEIZUNG_NUMERISCH): INPUT_OUTPUT_SCHEMA,
+        cv.Optional(CONF_MODUS_HEIZUNG): TEXT_SENSOR_SCHEMA,
+        cv.Optional(CONF_MODUS_WARMWASSER_NUMERISCH): INPUT_OUTPUT_SCHEMA,
+        cv.Optional(CONF_MODUS_WARMWASSER): TEXT_SENSOR_SCHEMA,
+        # Status sensors
+        cv.Optional(CONF_STATUS_ANLAGENTYP): INPUT_OUTPUT_SCHEMA,
+        cv.Optional(CONF_STATUS_SOFTWAREVERSION): TEXT_SENSOR_SCHEMA,
+        cv.Optional(CONF_STATUS_BIVALENZSTUFE): INPUT_OUTPUT_SCHEMA,
+        cv.Optional(CONF_STATUS_BETRIEBSZUSTAND_NUMERISCH): INPUT_OUTPUT_SCHEMA,
+        cv.Optional(CONF_STATUS_BETRIEBSZUSTAND): TEXT_SENSOR_SCHEMA,
+        cv.Optional(CONF_STATUS_LETZTER_START): TEXT_SENSOR_SCHEMA,
+        # Error sensors
+        cv.Optional(CONF_ERROR0_FEHLERCODE): INPUT_OUTPUT_SCHEMA,
+        cv.Optional(CONF_ERROR0_FEHLERBESCHREIBUNG): TEXT_SENSOR_SCHEMA,
+        cv.Optional(CONF_ERROR0_ZEITPUNKT): TEXT_SENSOR_SCHEMA,
+        cv.Optional(CONF_ERROR1_FEHLERCODE): INPUT_OUTPUT_SCHEMA,
+        cv.Optional(CONF_ERROR1_FEHLERBESCHREIBUNG): TEXT_SENSOR_SCHEMA,
+        cv.Optional(CONF_ERROR1_ZEITPUNKT): TEXT_SENSOR_SCHEMA,
+        cv.Optional(CONF_ERROR2_FEHLERCODE): INPUT_OUTPUT_SCHEMA,
+        cv.Optional(CONF_ERROR2_FEHLERBESCHREIBUNG): TEXT_SENSOR_SCHEMA,
+        cv.Optional(CONF_ERROR2_ZEITPUNKT): TEXT_SENSOR_SCHEMA,
+        cv.Optional(CONF_ERROR3_FEHLERCODE): INPUT_OUTPUT_SCHEMA,
+        cv.Optional(CONF_ERROR3_FEHLERBESCHREIBUNG): TEXT_SENSOR_SCHEMA,
+        cv.Optional(CONF_ERROR3_ZEITPUNKT): TEXT_SENSOR_SCHEMA,
+        cv.Optional(CONF_ERROR4_FEHLERCODE): INPUT_OUTPUT_SCHEMA,
+        cv.Optional(CONF_ERROR4_FEHLERBESCHREIBUNG): TEXT_SENSOR_SCHEMA,
+        cv.Optional(CONF_ERROR4_ZEITPUNKT): TEXT_SENSOR_SCHEMA,
     })
     .extend(cv.COMPONENT_SCHEMA)
     .extend(uart.UART_DEVICE_SCHEMA)
@@ -225,3 +285,103 @@ async def to_code(config):
     if CONF_AUSGANG_ZWEITER_WAERMEERZEUGER_STOERUNG in config:
         sens = await sensor.new_sensor(config[CONF_AUSGANG_ZWEITER_WAERMEERZEUGER_STOERUNG])
         cg.add(var.set_ausgang_zweiter_waermeerzeuger_stoerung_sensor(sens))
+    
+    if CONF_MODUS_HEIZUNG_NUMERISCH in config:
+        sens = await sensor.new_sensor(config[CONF_MODUS_HEIZUNG_NUMERISCH])
+        cg.add(var.set_modus_heizung_numerisch_sensor(sens))
+    
+    if CONF_MODUS_HEIZUNG in config:
+        sens = await text_sensor.new_text_sensor(config[CONF_MODUS_HEIZUNG])
+        cg.add(var.set_modus_heizung_sensor(sens))
+    
+    if CONF_MODUS_WARMWASSER_NUMERISCH in config:
+        sens = await sensor.new_sensor(config[CONF_MODUS_WARMWASSER_NUMERISCH])
+        cg.add(var.set_modus_warmwasser_numerisch_sensor(sens))
+    
+    if CONF_MODUS_WARMWASSER in config:
+        sens = await text_sensor.new_text_sensor(config[CONF_MODUS_WARMWASSER])
+        cg.add(var.set_modus_warmwasser_sensor(sens))
+    
+    if CONF_STATUS_ANLAGENTYP in config:
+        sens = await sensor.new_sensor(config[CONF_STATUS_ANLAGENTYP])
+        cg.add(var.set_status_anlagentyp_sensor(sens))
+    
+    if CONF_STATUS_SOFTWAREVERSION in config:
+        sens = await text_sensor.new_text_sensor(config[CONF_STATUS_SOFTWAREVERSION])
+        cg.add(var.set_status_softwareversion_sensor(sens))
+    
+    if CONF_STATUS_BIVALENZSTUFE in config:
+        sens = await sensor.new_sensor(config[CONF_STATUS_BIVALENZSTUFE])
+        cg.add(var.set_status_bivalenzstufe_sensor(sens))
+    
+    if CONF_STATUS_BETRIEBSZUSTAND_NUMERISCH in config:
+        sens = await sensor.new_sensor(config[CONF_STATUS_BETRIEBSZUSTAND_NUMERISCH])
+        cg.add(var.set_status_betriebszustand_numerisch_sensor(sens))
+    
+    if CONF_STATUS_BETRIEBSZUSTAND in config:
+        sens = await  text_sensor.new_text_sensor(config[CONF_STATUS_BETRIEBSZUSTAND])
+        cg.add(var.set_status_betriebszustand_sensor(sens))
+
+    if CONF_STATUS_LETZTER_START in config:
+        sens = await text_sensor.new_text_sensor(config[CONF_STATUS_LETZTER_START])
+        cg.add(var.set_status_letzter_start_sensor(sens))
+    
+    if CONF_ERROR0_FEHLERCODE in config:
+        sens = await sensor.new_sensor(config[CONF_ERROR0_FEHLERCODE])
+        cg.add(var.set_error0_fehlercode_sensor(sens))
+    
+    if CONF_ERROR0_FEHLERBESCHREIBUNG in config:
+        sens = await text_sensor.new_text_sensor(config[CONF_ERROR0_FEHLERBESCHREIBUNG])
+        cg.add(var.set_error0_fehlerbeschreibung_sensor(sens))
+
+    if CONF_ERROR0_ZEITPUNKT in config:
+        sens = await text_sensor.new_text_sensor(config[CONF_ERROR0_ZEITPUNKT])
+        cg.add(var.set_error0_zeitpunkt_sensor(sens))
+    
+    if CONF_ERROR1_FEHLERCODE in config:
+        sens = await sensor.new_sensor(config[CONF_ERROR1_FEHLERCODE])
+        cg.add(var.set_error1_fehlercode_sensor(sens))
+    
+    if CONF_ERROR1_FEHLERBESCHREIBUNG in config:
+        sens = await text_sensor.new_text_sensor(config[CONF_ERROR1_FEHLERBESCHREIBUNG])
+        cg.add(var.set_error1_fehlerbeschreibung_sensor(sens))
+    
+    if CONF_ERROR1_ZEITPUNKT in config:
+        sens = await text_sensor.new_text_sensor(config[CONF_ERROR1_ZEITPUNKT])
+        cg.add(var.set_error1_zeitpunkt_sensor(sens))
+    
+    if CONF_ERROR2_FEHLERCODE in config:
+        sens = await sensor.new_sensor(config[CONF_ERROR2_FEHLERCODE])
+        cg.add(var.set_error2_fehlercode_sensor(sens))
+    
+    if CONF_ERROR2_FEHLERBESCHREIBUNG in config:
+        sens = await text_sensor.new_text_sensor(config[CONF_ERROR2_FEHLERBESCHREIBUNG])
+        cg.add(var.set_error2_fehlerbeschreibung_sensor(sens))
+    
+    if CONF_ERROR2_ZEITPUNKT in config:
+        sens = await text_sensor.new_text_sensor(config[CONF_ERROR2_ZEITPUNKT])
+        cg.add(var.set_error2_zeitpunkt_sensor(sens))
+    
+    if CONF_ERROR3_FEHLERCODE in config:
+        sens = await sensor.new_sensor(config[CONF_ERROR3_FEHLERCODE])
+        cg.add(var.set_error3_fehlercode_sensor(sens))
+    
+    if CONF_ERROR3_FEHLERBESCHREIBUNG in config:
+        sens = await text_sensor.new_text_sensor(config[CONF_ERROR3_FEHLERBESCHREIBUNG])
+        cg.add(var.set_error3_fehlerbeschreibung_sensor(sens))
+    
+    if CONF_ERROR3_ZEITPUNKT in config:
+        sens = await text_sensor.new_text_sensor(config[CONF_ERROR3_ZEITPUNKT])
+        cg.add(var.set_error3_zeitpunkt_sensor(sens))
+    
+    if CONF_ERROR4_FEHLERCODE in config:
+        sens = await sensor.new_sensor(config[CONF_ERROR4_FEHLERCODE])
+        cg.add(var.set_error4_fehlercode_sensor(sens))
+
+    if CONF_ERROR4_FEHLERBESCHREIBUNG in config:
+        sens = await text_sensor.new_text_sensor(config[CONF_ERROR4_FEHLERBESCHREIBUNG])
+        cg.add(var.set_error4_fehlerbeschreibung_sensor(sens))
+    
+    if CONF_ERROR4_ZEITPUNKT in config:
+        sens = await text_sensor.new_text_sensor(config[CONF_ERROR4_ZEITPUNKT])
+        cg.add(var.set_error4_zeitpunkt_sensor(sens))

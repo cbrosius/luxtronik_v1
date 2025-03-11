@@ -3,6 +3,7 @@
 #include "esphome/core/component.h"
 #include "esphome/components/uart/uart.h"
 #include "esphome/components/sensor/sensor.h"
+#include "esphome/components/text_sensor/text_sensor.h"
 
 namespace esphome {
 namespace luxtronik_v1_component {
@@ -59,13 +60,51 @@ class LuxtronikV1Component : public uart::UARTDevice, public PollingComponent {
   void set_ausgang_zweiter_waermeerzeuger_sensor(sensor::Sensor *sens) { ausgang_zweiter_waermeerzeuger_ = sens; }
   void set_ausgang_zweiter_waermeerzeuger_stoerung_sensor(sensor::Sensor *sens) { ausgang_zweiter_waermeerzeuger_stoerung_ = sens; }
 
+  // Mode sensor setters
+  void set_modus_heizung_numerisch_sensor(sensor::Sensor *sens) { modus_heizung_numerisch_ = sens; }
+  void set_modus_heizung_sensor(text_sensor::TextSensor *sens) { modus_heizung_ = sens; }
+  void set_modus_warmwasser_numerisch_sensor(sensor::Sensor *sens) { modus_warmwasser_numerisch_ = sens; }
+  void set_modus_warmwasser_sensor(text_sensor::TextSensor *sens) { modus_warmwasser_ = sens; }
+
+  // Status sensor setters
+  void set_status_anlagentyp_sensor(sensor::Sensor *sens) { status_anlagentyp_ = sens; }
+  void set_status_softwareversion_sensor(text_sensor::TextSensor *sens) { status_softwareversion_ = sens; }
+  void set_status_bivalenzstufe_sensor(sensor::Sensor *sens) { status_bivalenzstufe_ = sens; }
+  void set_status_betriebszustand_numerisch_sensor(sensor::Sensor *sens) { status_betriebszustand_numerisch_ = sens; }
+  void set_status_betriebszustand_sensor(text_sensor::TextSensor *sens) { status_betriebszustand_ = sens; }
+  void set_status_letzter_start_sensor(text_sensor::TextSensor *sens) { status_letzter_start_ = sens; }
+
+  // Add error sensor setters
+  void set_error0_fehlercode_sensor(sensor::Sensor *sens) { error0_fehlercode_ = sens; }
+  void set_error0_fehlerbeschreibung_sensor(text_sensor::TextSensor *sens) { error0_fehlerbeschreibung_ = sens; }
+  void set_error0_zeitpunkt_sensor(text_sensor::TextSensor *sens) { error0_zeitpunkt_ = sens; }
+  void set_error1_fehlercode_sensor(sensor::Sensor *sens) { error1_fehlercode_ = sens; }
+  void set_error1_fehlerbeschreibung_sensor(text_sensor::TextSensor *sens) { error1_fehlerbeschreibung_ = sens; }
+  void set_error1_zeitpunkt_sensor(text_sensor::TextSensor *sens) { error1_zeitpunkt_ = sens; }
+  void set_error2_fehlercode_sensor(sensor::Sensor *sens) { error2_fehlercode_ = sens; }
+  void set_error2_fehlerbeschreibung_sensor(text_sensor::TextSensor *sens) { error2_fehlerbeschreibung_ = sens; }
+  void set_error2_zeitpunkt_sensor(text_sensor::TextSensor *sens) { error2_zeitpunkt_ = sens; }
+  void set_error3_fehlercode_sensor(sensor::Sensor *sens) { error3_fehlercode_ = sens; }
+  void set_error3_fehlerbeschreibung_sensor(text_sensor::TextSensor *sens) { error3_fehlerbeschreibung_ = sens; }
+  void set_error3_zeitpunkt_sensor(text_sensor::TextSensor *sens) { error3_zeitpunkt_ = sens; }
+  void set_error4_fehlercode_sensor(sensor::Sensor *sens) { error4_fehlercode_ = sens; }
+  void set_error4_fehlerbeschreibung_sensor(text_sensor::TextSensor *sens) { error4_fehlerbeschreibung_ = sens; }
+  void set_error4_zeitpunkt_sensor(text_sensor::TextSensor *sens) { error4_zeitpunkt_ = sens; }
+
   protected:
   float get_float_temp_(const std::string& value) { return std::atof(value.c_str()) / 10.0f; }
   void parse_message_(const char* message);
   void parse_temperatur_message_(const char* message);
   void parse_input_message_(const char* message);
   void parse_output_message_(const char* message);
+  void parse_modus_heizung_message_(const char* message);      
+  void parse_modus_warmwasser_message_(const char* message);   
+  void parse_status_message_(const char* message);
+  void parse_error_message_(const char* message);
   void publish_state_deferred_(sensor::Sensor* sensor, float value, const char* type, const char* name);
+  std::string get_betriebszustand_text_(int state);
+  std::string get_modus_text_(int state);
+  std::string get_error_description_(int error_code);
 
   uart::UARTComponent *parent_{nullptr};
   char read_buffer_[READ_BUFFER_LENGTH];
@@ -105,6 +144,38 @@ class LuxtronikV1Component : public uart::UARTDevice, public PollingComponent {
   sensor::Sensor *ausgang_zirkulationspumpe_{nullptr};          // 1300/12
   sensor::Sensor *ausgang_zweiter_waermeerzeuger_{nullptr};     // 1300/13
   sensor::Sensor *ausgang_zweiter_waermeerzeuger_stoerung_{nullptr}; // 1300/14
+  
+  // Modus sensor pointers
+  sensor::Sensor *modus_heizung_numerisch_{nullptr};                // 3405/2
+  text_sensor::TextSensor *modus_heizung_{nullptr};                // 3405/2
+  sensor::Sensor *modus_warmwasser_numerisch_{nullptr};            // 3505/2
+  text_sensor::TextSensor *modus_warmwasser_{nullptr};             // 3505/2
+
+  // Status sensor pointers
+  sensor::Sensor *status_anlagentyp_{nullptr};                  // 1700/2
+  text_sensor::TextSensor *status_softwareversion_{nullptr};    // 1700/3
+  sensor::Sensor *status_bivalenzstufe_{nullptr};               // 1700/4
+  sensor::Sensor *status_betriebszustand_numerisch_{nullptr};   // 1700/5
+  text_sensor::TextSensor *status_betriebszustand_{nullptr};    // 1700/5
+  text_sensor::TextSensor *status_letzter_start_{nullptr};      // 1700/6-11
+
+  // Error sensor pointers
+  sensor::Sensor *error0_fehlercode_{nullptr};
+  text_sensor::TextSensor *error0_fehlerbeschreibung_{nullptr};
+  text_sensor::TextSensor *error0_zeitpunkt_{nullptr};
+  sensor::Sensor *error1_fehlercode_{nullptr};
+  text_sensor::TextSensor *error1_fehlerbeschreibung_{nullptr};
+  text_sensor::TextSensor *error1_zeitpunkt_{nullptr};
+  sensor::Sensor *error2_fehlercode_{nullptr};
+  text_sensor::TextSensor *error2_fehlerbeschreibung_{nullptr};
+  text_sensor::TextSensor *error2_zeitpunkt_{nullptr};
+  sensor::Sensor *error3_fehlercode_{nullptr};
+  text_sensor::TextSensor *error3_fehlerbeschreibung_{nullptr};
+  text_sensor::TextSensor *error3_zeitpunkt_{nullptr};
+  sensor::Sensor *error4_fehlercode_{nullptr};
+  text_sensor::TextSensor *error4_fehlerbeschreibung_{nullptr};
+  text_sensor::TextSensor *error4_zeitpunkt_{nullptr};
+
 };
 
 }  // namespace luxtronik_v1_component

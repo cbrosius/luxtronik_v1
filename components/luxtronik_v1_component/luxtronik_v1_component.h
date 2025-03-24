@@ -91,6 +91,17 @@ class LuxtronikV1Component : public uart::UARTDevice, public PollingComponent {
   void set_error4_fehlerbeschreibung_sensor(text_sensor::TextSensor *sens) { error4_fehlerbeschreibung_ = sens; }
   void set_error4_zeitpunkt_sensor(text_sensor::TextSensor *sens) { error4_zeitpunkt_ = sens; }
 
+  // Add operatinghours sensor setters
+  void set_betriebsstunden_verdichter_1_sensor(sensor::Sensor *sens) { betriebsstunden_verdichter_1_ = sens; }
+  void set_impulse_verdichter_1_sensor(sensor::Sensor *sens) { impulse_verdichter_1_ = sens; }
+  void set_durchschnittliche_einschaltdauer_verdichter_1_sensor(sensor::Sensor *sens) { durchschnittliche_einschaltdauer_verdichter_1_ = sens; }
+  void set_betriebsstunden_verdichter_2_sensor(sensor::Sensor *sens) { betriebsstunden_verdichter_2_ = sens; }
+  void set_impulse_verdichter_2_sensor(sensor::Sensor *sens) { impulse_verdichter_2_ = sens; }
+  void set_durchschnittliche_einschaltdauer_verdichter_2_sensor(sensor::Sensor *sens) { durchschnittliche_einschaltdauer_verdichter_2_ = sens; }
+  void set_betriebsstunden_zweiter_waermeerzeuger_1_sensor(sensor::Sensor *sens) { betriebsstunden_zweiter_waermeerzeuger_1_ = sens; }
+  void set_betriebsstunden_zweiter_waermeerzeuger_2_sensor(sensor::Sensor *sens) { betriebsstunden_zweiter_waermeerzeuger_2_ = sens; }
+  void set_betriebsstunden_waermepumpe_sensor(sensor::Sensor *sens) { betriebsstunden_waermepumpe_ = sens; }
+
   protected:
   float get_float_temp_(const std::string& value) { return std::atof(value.c_str()) / 10.0f; }
   void parse_message_(const char* message);
@@ -101,6 +112,7 @@ class LuxtronikV1Component : public uart::UARTDevice, public PollingComponent {
   void parse_modus_warmwasser_message_(const char* message);   
   void parse_status_message_(const char* message);
   void parse_error_message_(const char* message);
+  void parse_operatinghours_message_(const char* message);
   void publish_state_deferred_(sensor::Sensor* sensor, float value, const char* type, const char* name);
   std::string get_betriebszustand_text_(int state);
   std::string get_modus_text_(int state);
@@ -176,6 +188,16 @@ class LuxtronikV1Component : public uart::UARTDevice, public PollingComponent {
   text_sensor::TextSensor *error4_fehlerbeschreibung_{nullptr};
   text_sensor::TextSensor *error4_zeitpunkt_{nullptr};
 
+  // operatinghours sensor pointers
+  sensor::Sensor *betriebsstunden_verdichter_1_{nullptr};                 // 1450/1
+  sensor::Sensor *impulse_verdichter_1_{nullptr};                         // 1450/2
+  sensor::Sensor *durchschnittliche_einschaltdauer_verdichter_1_{nullptr}; // 1450/3
+  sensor::Sensor *betriebsstunden_verdichter_2_{nullptr};                 // 1450/4
+  sensor::Sensor *impulse_verdichter_2_{nullptr};                         // 1450/5
+  sensor::Sensor *durchschnittliche_einschaltdauer_verdichter_2_{nullptr}; // 1450/6
+  sensor::Sensor *betriebsstunden_zweiter_waermeerzeuger_1_{nullptr};     // 1450/7
+  sensor::Sensor *betriebsstunden_zweiter_waermeerzeuger_2_{nullptr};     // 1450/8
+  sensor::Sensor *betriebsstunden_waermepumpe_{nullptr};                  // 1450/9
 };
 
 }  // namespace luxtronik_v1_component

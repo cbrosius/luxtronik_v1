@@ -220,6 +220,34 @@ luxtronik_v1_component:
   error4_fehlerbeschreibung:
     name: "Error4 Fehlerbeschreibung"
     id: error4_fehlerbeschreibung
+  # Betriebsstunden sensors
+  betriebsstunden_verdichter_1:
+    name: "Betriebsstunden Verdichter 1"
+    id: betriebsstunden_verdichter_1
+  impulse_verdichter_1:
+    name: "Impulse Verdichter 1"
+    id: impulse_verdichter_1
+  durchschnittliche_einschaltdauer_verdichter_1:
+    name: "Durchschnittliche Einschaltdauer Verdichter 1"
+    id: durchschnittliche_einschaltdauer_verdichter_1
+  betriebsstunden_verdichter_2:
+    name: "Betriebsstunden Verdichter 2"  
+    id: betriebsstunden_verdichter_2
+  impulse_verdichter_2:
+    name: "Impulse Verdichter 2"
+    id: impulse_verdichter_2
+  durchschnittliche_einschaltdauer_verdichter_2:
+    name: "Durchschnittliche Einschaltdauer Verdichter 2"
+    id: durchschnittliche_einschaltdauer_verdichter_2
+  betriebsstunden_zweiter_waermeerzeuger_1:
+    name: "Betriebsstunden Zweiter Wärmeerzeuger 1"
+    id: betriebsstunden_zweiter_waermeerzeuger_1
+  betriebsstunden_zweiter_waermeerzeuger_2:
+    name: "Betriebsstunden Zweiter Wärmeerzeuger 2"
+    id: betriebsstunden_zweiter_waermeerzeuger_2
+  betriebsstunden_waermepumpe:
+    name: "Betriebsstunden Wärmepumpe"
+    id: betriebsstunden_waermepumpe
 
 button:
   - platform: template

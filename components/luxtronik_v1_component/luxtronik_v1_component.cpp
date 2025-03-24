@@ -99,6 +99,10 @@ void LuxtronikV1Component::parse_message_(const char* message) {
         this->defer([this, msg]() {
             parse_error_message_(msg.c_str());
         });
+    } else if (prefix == "1450") {
+        this->defer([this, msg]() {
+            parse_operatinghours_message_(msg.c_str());
+        });
     }
 }
 
@@ -625,6 +629,58 @@ void LuxtronikV1Component::parse_error_message_(const char* message) {
             break;
         }
     }
+    // Request working hours after error values are parsed
+    this->parent_->write_str("1450\r\n");
+}
+
+void LuxtronikV1Component::parse_operatinghours_message_(const char* message) {
+    std::string msg(message);
+    std::vector<std::string> values;
+    size_t start = 5;  // Skip "1450;"  
+    size_t end = 0;
+
+    // Split message into vector for faster processing
+    while ((end = msg.find(';', start)) != std::string::npos) {
+        values.push_back(msg.substr(start, end - start));
+        start = end + 1;
+    }
+
+    if (start < msg.length()) {
+        values.push_back(msg.substr(start));
+    }
+
+    if (values.size() < 2) return;  // At least count and one value needed
+
+    size_t idx = 1;  // Skip count
+    
+    auto publish_hours = [this](sensor::Sensor* sensor, const std::string& value, const char* name) {
+        if (sensor != nullptr) {
+            float val = std::atof(value.c_str());
+            // Convert seconds to hours
+            float hours = val / 3600.0f;
+            publish_state_deferred_(sensor, hours, "Output", name);
+        }
+    };
+
+    auto publish_impulses = [this](sensor::Sensor* sensor, const std::string& value, const char* name) {
+        if (sensor != nullptr) {
+            float val = std::atof(value.c_str());
+            // Impulses are published 1:1
+            publish_state_deferred_(sensor, val, "Output", name);
+        }
+    };
+
+    // Process Betriebsstunden
+    if (idx < values.size()) publish_hours(betriebsstunden_verdichter_1_, values[idx++], "Betriebsstunden Verdichter 1");
+    if (idx < values.size()) publish_impulses(impulse_verdichter_1_, values[idx++], "Impulse Verdichter 1");
+    if (idx < values.size()) publish_hours(durchschnittliche_einschaltdauer_verdichter_1_, values[idx++], "Durchschnittliche Einschaltdauer Verdichter 1");
+    if (idx < values.size()) publish_hours(betriebsstunden_verdichter_2_, values[idx++], "Betriebsstunden Verdichter 2");
+    if (idx < values.size()) publish_impulses(impulse_verdichter_2_, values[idx++], "Impulse Verdichter 2");
+    if (idx < values.size()) publish_hours(durchschnittliche_einschaltdauer_verdichter_2_, values[idx++], "Durchschnittliche Einschaltdauer Verdichter 2");
+    if (idx < values.size()) publish_hours(betriebsstunden_zweiter_waermeerzeuger_1_, values[idx++], "Betriebsstunden Zweiter Waermeerzeuger 1");
+    if (idx < values.size()) publish_hours(betriebsstunden_zweiter_waermeerzeuger_2_, values[idx++], "Betriebsstunden Zweiter Waermeerzeuger 2");
+    if (idx < values.size()) publish_hours(betriebsstunden_waermepumpe_, values[idx++], "Betriebsstunden Waermepumpe");
+
 }
 
 void LuxtronikV1Component::dump_config() {

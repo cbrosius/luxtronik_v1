@@ -72,6 +72,17 @@ CONF_ERROR4_FEHLERCODE = "error4_fehlercode"
 CONF_ERROR4_FEHLERBESCHREIBUNG = "error4_fehlerbeschreibung"
 CONF_ERROR4_ZEITPUNKT = "error4_zeitpunkt"
 
+# Add operatinghours sensor constants after error sensors
+CONF_BETRIEBSSTUNDEN_VERDICHTER_1 = "betriebsstunden_verdichter_1"
+CONF_IMPULSE_VERDICHTER_1 = "impulse_verdichter_1"
+CONF_DURCHSCHNITTLICHE_EINSCHALTDAUER_VERDICHTER_1 = "durchschnittliche_einschaltdauer_verdichter_1"
+CONF_BETRIEBSSTUNDEN_VERDICHTER_2 = "betriebsstunden_verdichter_2" 
+CONF_IMPULSE_VERDICHTER_2 = "impulse_verdichter_2"
+CONF_DURCHSCHNITTLICHE_EINSCHALTDAUER_VERDICHTER_2 = "durchschnittliche_einschaltdauer_verdichter_2"
+CONF_BETRIEBSSTUNDEN_ZWEITER_WAERMEERZEUGER_1 = "betriebsstunden_zweiter_waermeerzeuger_1"
+CONF_BETRIEBSSTUNDEN_ZWEITER_WAERMEERZEUGER_2 = "betriebsstunden_zweiter_waermeerzeuger_2"
+CONF_BETRIEBSSTUNDEN_WAERMEPUMPE = "betriebsstunden_waermepumpe"
+
 luxtronik_v1_component_ns = cg.esphome_ns.namespace("luxtronik_v1_component")
 LuxtronikV1Component = luxtronik_v1_component_ns.class_(
     "LuxtronikV1Component", cg.Component, uart.UARTDevice
@@ -91,6 +102,16 @@ INPUT_OUTPUT_SCHEMA = sensor.sensor_schema(
 )
 
 TEXT_SENSOR_SCHEMA = text_sensor.text_sensor_schema()
+
+OPERATINGHOURS_SENSOR_SCHEMA = sensor.sensor_schema(
+    unit_of_measurement="h",
+    accuracy_decimals=0,
+)
+
+IMPULS_SENSOR_SCHEMA = sensor.sensor_schema(
+    unit_of_measurement="Impulse",
+    accuracy_decimals=0,
+)
 
 CONFIG_SCHEMA = (
     cv.Schema({
@@ -153,6 +174,16 @@ CONFIG_SCHEMA = (
         cv.Optional(CONF_ERROR4_FEHLERCODE): INPUT_OUTPUT_SCHEMA,
         cv.Optional(CONF_ERROR4_FEHLERBESCHREIBUNG): TEXT_SENSOR_SCHEMA,
         cv.Optional(CONF_ERROR4_ZEITPUNKT): TEXT_SENSOR_SCHEMA,
+        # Workinghours sensors
+        cv.Optional(CONF_BETRIEBSSTUNDEN_VERDICHTER_1): OPERATINGHOURS_SENSOR_SCHEMA,
+        cv.Optional(CONF_IMPULSE_VERDICHTER_1): IMPULS_SENSOR_SCHEMA,
+        cv.Optional(CONF_DURCHSCHNITTLICHE_EINSCHALTDAUER_VERDICHTER_1): OPERATINGHOURS_SENSOR_SCHEMA,
+        cv.Optional(CONF_BETRIEBSSTUNDEN_VERDICHTER_2): OPERATINGHOURS_SENSOR_SCHEMA,
+        cv.Optional(CONF_IMPULSE_VERDICHTER_2): IMPULS_SENSOR_SCHEMA,
+        cv.Optional(CONF_DURCHSCHNITTLICHE_EINSCHALTDAUER_VERDICHTER_2): OPERATINGHOURS_SENSOR_SCHEMA,
+        cv.Optional(CONF_BETRIEBSSTUNDEN_ZWEITER_WAERMEERZEUGER_1): OPERATINGHOURS_SENSOR_SCHEMA,
+        cv.Optional(CONF_BETRIEBSSTUNDEN_ZWEITER_WAERMEERZEUGER_2): OPERATINGHOURS_SENSOR_SCHEMA,
+        cv.Optional(CONF_BETRIEBSSTUNDEN_WAERMEPUMPE): OPERATINGHOURS_SENSOR_SCHEMA,
     })
     .extend(cv.COMPONENT_SCHEMA)
     .extend(uart.UART_DEVICE_SCHEMA)
@@ -385,3 +416,39 @@ async def to_code(config):
     if CONF_ERROR4_ZEITPUNKT in config:
         sens = await text_sensor.new_text_sensor(config[CONF_ERROR4_ZEITPUNKT])
         cg.add(var.set_error4_zeitpunkt_sensor(sens))
+
+    if CONF_BETRIEBSSTUNDEN_VERDICHTER_1 in config:
+        sens = await sensor.new_sensor(config[CONF_BETRIEBSSTUNDEN_VERDICHTER_1])
+        cg.add(var.set_betriebsstunden_verdichter_1_sensor(sens))
+
+    if CONF_IMPULSE_VERDICHTER_1 in config:
+        sens = await sensor.new_sensor(config[CONF_IMPULSE_VERDICHTER_1])
+        cg.add(var.set_impulse_verdichter_1_sensor(sens))
+
+    if CONF_DURCHSCHNITTLICHE_EINSCHALTDAUER_VERDICHTER_1 in config:
+        sens = await sensor.new_sensor(config[CONF_DURCHSCHNITTLICHE_EINSCHALTDAUER_VERDICHTER_1])
+        cg.add(var.set_durchschnittliche_einschaltdauer_verdichter_1_sensor(sens))
+                
+    if CONF_BETRIEBSSTUNDEN_VERDICHTER_2 in config:
+        sens = await sensor.new_sensor(config[CONF_BETRIEBSSTUNDEN_VERDICHTER_2])
+        cg.add(var.set_betriebsstunden_verdichter_2_sensor(sens))
+    
+    if CONF_IMPULSE_VERDICHTER_2 in config:
+        sens = await sensor.new_sensor(config[CONF_IMPULSE_VERDICHTER_2])
+        cg.add(var.set_impulse_verdichter_2_sensor(sens))
+        
+    if CONF_DURCHSCHNITTLICHE_EINSCHALTDAUER_VERDICHTER_2 in config:
+        sens = await sensor.new_sensor(config[CONF_DURCHSCHNITTLICHE_EINSCHALTDAUER_VERDICHTER_2])
+        cg.add(var.set_durchschnittliche_einschaltdauer_verdichter_2_sensor(sens))
+        
+    if CONF_BETRIEBSSTUNDEN_ZWEITER_WAERMEERZEUGER_1 in config:
+        sens = await sensor.new_sensor(config[CONF_BETRIEBSSTUNDEN_ZWEITER_WAERMEERZEUGER_1])
+        cg.add(var.set_betriebsstunden_zweiter_waermeerzeuger_1_sensor(sens))
+    
+    if CONF_BETRIEBSSTUNDEN_ZWEITER_WAERMEERZEUGER_2 in config:
+        sens = await sensor.new_sensor(config[CONF_BETRIEBSSTUNDEN_ZWEITER_WAERMEERZEUGER_2])
+        cg.add(var.set_betriebsstunden_zweiter_waermeerzeuger_2_sensor(sens))
+        
+    if CONF_BETRIEBSSTUNDEN_WAERMEPUMPE in config:
+        sens = await sensor.new_sensor(config[CONF_BETRIEBSSTUNDEN_WAERMEPUMPE])
+        cg.add(var.set_betriebsstunden_waermepumpe_sensor(sens))

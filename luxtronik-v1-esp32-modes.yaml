@@ -1,0 +1,306 @@
+# Beispiel: Betriebsart (Heizung/Warmwasser) sicher aus Home Assistant umstellen.
+#
+# Wie luxtronik-v1-esp32.yaml, plus zwei Auswahlfelder "Modus Heizung" / "Modus Warmwasser".
+# Schutz vor unnoetigen EEPROM-Schreibzugriffen der Steuerung (jeder Schreibvorgang wird mit 999 gespeichert):
+#  - es wird NIE beim Booten oder beim Zuruecklesen geschrieben (set_action laeuft nur bei Bedienung)
+#  - nur wenn der aktuelle Wert gelesen wurde und sich vom Wunsch unterscheidet
+#  - Sperrfrist 5 Minuten zwischen zwei Schreibvorgaengen
+#  - Abfragen sind waehrend des Schreibens pausiert (set_paused), danach wird zurueckgelesen
+# Nicht aus Automationen verwenden, die oft schalten.
+#
+esphome:
+  name: luxtronik_v1
+  friendly_name: Luxtronik_v1 Waermepumpe
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  fast_connect: True
+
+# Enable logging
+logger:
+  # disable serial loggin
+  baud_rate: 0
+
+web_server:
+
+# Enable Home Assistant API
+api:
+
+# Enable MQTT
+#mqtt:
+#  broker: <your mqtt broker ip>
+
+ota:
+  platform: esphome
+
+uart:
+  id: uart_bus
+  rx_pin: GPIO16
+  tx_pin: GPIO17
+  baud_rate: 57600
+  data_bits: 8
+  parity: NONE
+  stop_bits: 1
+#  debug:
+#    direction: BOTH
+#    dummy_receiver: false
+
+external_components:
+  - source:
+      type: git
+      url: https://github.com/cbrosius/luxtronik_v1
+      ref: main
+    components: [ luxtronik_v1_component ]
+    refresh: 0s
+  # Die Funktionen set_paused()/is_paused() der Komponente werden vom Script benoetigt.
+
+luxtronik_v1_component:
+  id: luxtronik_v1_component_1
+  temperatur_vorlauf:
+    name: "Temperatur Vorlauf"
+    id: temperatur_vorlauf
+  temperatur_ruecklauf:
+    name: "Temperatur Rücklauf"
+    id: temperatur_ruecklauf
+  temperatur_ruecklauf_soll:
+    name: "Temperatur Rücklauf Soll"
+    id: temperatur_ruecklauf_soll
+  temperatur_heissgas:
+    name: "Temperatur Heissgas"
+    id: temperatur_heissgas
+  temperatur_aussen:
+    name: "Temperatur Aussen"
+    id: temperatur_aussen
+  temperatur_brauchwasser:
+    name: "Temperatur Brauchwasser"
+    id: temperatur_brauchwasser
+  temperatur_brauchwasser_soll:
+    name: "Temperatur Brauchwasser Soll"
+    id: temperatur_brauchwasser_soll
+  temperatur_waermequelle_eingang:
+    name: "Temperatur Wärmequelle Eingang"
+    id: temperatur_waermequelle_eingang
+  temperatur_kaeltekreis:
+    name: "Temperatur Kältekreis"
+    id: temperatur_kaeltekreis
+  temperatur_mischkreis1_vorlauf:
+    name: "Temperatur Mischkreis1 Vorlauf"
+    id: temperatur_mischkreis1_vorlauf
+  temperatur_mischkreis1_vorlauf_soll:
+    name: "Temperatur Mischkreis1 Vorlauf Soll"
+    id: temperatur_mischkreis1_vorlauf_soll
+  temperatur_raumstation:
+    name: "Temperatur Raumstation"
+    id: temperatur_raumstation
+  eingang_abtau_soledruck_durchfluss:
+    name: "Eingang Abtau Soledruck Durchfluss"
+    id: eingang_abtau_soledruck_durchfluss
+  eingang_sperrzeit_evu:
+    name: "Eingang Sperrzeit EVU"
+    id: eingang_sperrzeit_evu
+  eingang_hochdruckpressostat:
+    name: "Eingang Hochdruckpressostat"
+    id: eingang_hochdruckpressostat
+  eingang_motorschutz:
+    name: "Eingang Motorschutz"
+    id: eingang_motorschutz
+  eingang_niederdruckpressostat:
+    name: "Eingang Niederdruckpressostat"
+    id: eingang_niederdruckpressostat
+  eingang_fremdstromanode:
+    name: "Eingang Fremdstromanode"
+    id: eingang_fremdstromanode
+  # Output sensors
+  ausgang_abtauventil:
+    name: "Ausgang Abtauventil"
+    id: ausgang_abtauventil
+  ausgang_brauchwasserpumpe:
+    name: "Ausgang Brauchwasserpumpe"
+    id: ausgang_brauchwasserpumpe
+  ausgang_fussbodenheizungspumpe:
+    name: "Ausgang Fußbodenheizungspumpe"
+    id: ausgang_fussbodenheizungspumpe
+  ausgang_heizungspumpe:
+    name: "Ausgang Heizungspumpe"
+    id: ausgang_heizungspumpe
+  ausgang_mischer_1_auf:
+    name: "Ausgang Mischer 1 Auf"
+    id: ausgang_mischer_1_auf
+  ausgang_mischer_1_zu:
+    name: "Ausgang Mischer 1 Zu"
+    id: ausgang_mischer_1_zu
+  ausgang_ventilator_waermepumpe:
+    name: "Ausgang Ventilator Wärmepumpe"
+    id: ausgang_ventilator_waermepumpe
+  ausgang_ventilator_brunnen:
+    name: "Ausgang Ventilator Brunnen"
+    id: ausgang_ventilator_brunnen
+  ausgang_verdichter_1:
+    name: "Ausgang Verdichter 1"
+    id: ausgang_verdichter_1
+  ausgang_verdichter_2:
+    name: "Ausgang Verdichter 2"
+    id: ausgang_verdichter_2
+  ausgang_zirkulationspumpe:
+    name: "Ausgang Zirkulationspumpe"
+    id: ausgang_zirkulationspumpe
+  ausgang_zweiter_waermeerzeuger:
+    name: "Ausgang Zweiter Wärmeerzeuger"
+    id: ausgang_zweiter_waermeerzeuger
+  ausgang_zweiter_waermeerzeuger_stoerung:
+    name: "Ausgang Zweiter Wärmeerzeuger Störung"
+    id: ausgang_zweiter_waermeerzeuger_stoerung
+  # Betriebsart (3405 / 3505): numerisch (mit id fuer die Select-Anzeige) und als Text
+  modus_heizung_numerisch:
+    name: "Modus Heizung numerisch"
+    id: wp_modus_heizung
+    on_value:
+      then:
+        - lambda: |-
+            static const char *const o[] = {"Auto", "ZWE", "Party", "Ferien", "aus"};
+            int i = (int) x;
+            if (i >= 0 && i <= 4) id(mode_heizung).publish_state(o[i]);
+  modus_heizung:
+    name: "Modus Heizung Text"
+  modus_warmwasser_numerisch:
+    name: "Modus Warmwasser numerisch"
+    id: wp_modus_warmwasser
+    on_value:
+      then:
+        - lambda: |-
+            static const char *const o[] = {"Auto", "ZWE", "Party", "Ferien", "aus"};
+            int i = (int) x;
+            if (i >= 0 && i <= 4) id(mode_warmwasser).publish_state(o[i]);
+  modus_warmwasser:
+    name: "Modus Warmwasser Text"
+    
+sensor:
+  - platform: uptime
+    name: "Uptime Sensor"
+
+globals:
+  - id: last_write_ms          # Zeitpunkt des letzten Schreibvorgangs (Sperrfrist)
+    type: uint32_t
+    initial_value: '0'
+  - id: write_count            # Schreibvorgaenge seit Boot (nur zur Anzeige)
+    type: int
+    initial_value: '0'
+  - id: w_ok
+    type: bool
+    initial_value: 'false'
+  - id: w_cmd
+    type: int
+    initial_value: '0'
+  - id: w_val
+    type: int
+    initial_value: '0'
+
+# Ein Schreibvorgang = dieselbe Befehlsfolge wie bisher, aber abgesichert:
+#  - nur wenn der aktuelle Wert von der Steuerung gelesen wurde und sich der Wunsch davon unterscheidet
+#  - Sperrfrist 5 Minuten zwischen zwei Schreibvorgaengen
+#  - Abfragen werden waehrenddessen pausiert (kein Durcheinander auf der Leitung)
+#  - kein Schreiben beim Booten oder beim Zuruecklesen
+script:
+  - id: write_mode
+    mode: single
+    parameters:
+      kind: int          # 0 = Heizung (3406), 1 = Warmwasser (3506)
+      option: std::string
+    then:
+      - lambda: |-
+          static const char *const o[] = {"Auto", "ZWE", "Party", "Ferien", "aus"};
+          int idx = -1;
+          for (int k = 0; k < 5; k++) if (option == o[k]) idx = k;
+          sensor::Sensor *cur = (kind == 0) ? id(wp_modus_heizung) : id(wp_modus_warmwasser);
+          bool valid = idx >= 0 && cur->has_state();
+          bool changed = valid && ((int) cur->state != idx);
+          bool cooled = id(last_write_ms) == 0 || (millis() - id(last_write_ms)) > 300000UL;
+          id(w_ok) = valid && changed && cooled;
+          id(w_cmd) = (kind == 0) ? 3406 : 3506;
+          id(w_val) = idx;
+          if (!id(w_ok)) {
+            ESP_LOGW("write_mode", "Schreiben verworfen (gueltig=%d, geaendert=%d, Sperrfrist ok=%d)", valid, changed, cooled);
+            if (valid) {
+              if (kind == 0) id(mode_heizung).publish_state(o[(int) cur->state]);
+              else id(mode_warmwasser).publish_state(o[(int) cur->state]);
+            }
+          }
+      - if:
+          condition:
+            lambda: 'return id(w_ok);'
+          then:
+            - lambda: |-
+                id(luxtronik_v1_component_1)->set_paused(true);
+                id(last_write_ms) = millis();
+                id(write_count)++;
+                ESP_LOGW("write_mode", "SCHREIBE %d;1;%d", id(w_cmd), id(w_val));
+            - delay: 2s          # laufende Antwort abwarten
+            - uart.write:
+                data: !lambda |-
+                  char b[16]; int n = snprintf(b, sizeof(b), "%d\r\n", id(w_cmd));
+                  return std::vector<uint8_t>(b, b + n);
+            - delay: 2s
+            - uart.write:
+                data: !lambda |-
+                  char b[24]; int n = snprintf(b, sizeof(b), "%d;1;%d\r\n", id(w_cmd), id(w_val));
+                  return std::vector<uint8_t>(b, b + n);
+            - delay: 3s
+            - uart.write:
+                data: "999\r\n"    # speichern
+            - delay: 3s
+            # 3405 / 3505 zuruecklesen
+            - uart.write:
+                data: !lambda |-
+                  char b[16]; int n = snprintf(b, sizeof(b), "%d\r\n", id(w_cmd) - 1);
+                  return std::vector<uint8_t>(b, b + n);
+            - delay: 3s
+            - lambda: |-
+                id(luxtronik_v1_component_1)->set_paused(false);
+                sensor::Sensor *cur = (id(w_cmd) == 3406) ? id(wp_modus_heizung) : id(wp_modus_warmwasser);
+                if (!cur->has_state() || (int) cur->state != id(w_val))
+                  ESP_LOGW("write_mode", "Rueckgelesener Wert weicht ab - bitte pruefen");
+                id(luxtronik_v1_component_1)->update();
+
+select:
+  - platform: template
+    name: "Modus Heizung"
+    id: mode_heizung
+    options: ["Auto", "ZWE", "Party", "Ferien", "aus"]   # "Ferien" laut Doku evtl. nicht implementiert
+    optimistic: false            # Anzeige kommt nur aus dem gelesenen Wert
+    set_action:                  # laeuft NUR bei Bedienung (HA/Web), nie beim Booten
+      - script.execute:
+          id: write_mode
+          kind: 0
+          option: !lambda 'return x;'
+  - platform: template
+    name: "Modus Warmwasser"
+    id: mode_warmwasser
+    options: ["Auto", "ZWE", "Party", "Ferien", "aus"]
+    optimistic: false
+    set_action:
+      - script.execute:
+          id: write_mode
+          kind: 1
+          option: !lambda 'return x;'
+
+button:
+  - platform: template
+    name: " UART prüfen"
+    id: check_uart
+    on_press:
+      then:
+        - uart.write:
+            data: "\r\n"
+  - platform: template
+    name: " Werte manuell abfragen"
+    id: ask_for_values
+    on_press:
+      then:
+        - uart.write:
+            data: "1100\r\n"

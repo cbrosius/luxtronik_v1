@@ -19,6 +19,9 @@ class LuxtronikV1Component : public uart::UARTDevice, public PollingComponent {
   void setup() override;
   void loop() override;
   void update() override;
+  // Patch: Polling pausieren, waehrend ein Schreibvorgang laeuft
+  void set_paused(bool paused) { paused_ = paused; }
+  bool is_paused() const { return paused_; }
   void dump_config() override;
 
   void set_uart_parent(uart::UARTComponent *parent) { 
@@ -104,6 +107,8 @@ class LuxtronikV1Component : public uart::UARTDevice, public PollingComponent {
 
   protected:
   float get_float_temp_(const std::string& value) { return std::atof(value.c_str()) / 10.0f; }
+  void send_request_(const char *cmd);
+  bool paused_{false};
   void parse_message_(const char* message);
   void parse_temperatur_message_(const char* message);
   void parse_input_message_(const char* message);

@@ -15,7 +15,14 @@ void LuxtronikV1Component::setup() {
     }
 
     // Request initial values immediately after setup
-    this->parent_->write_str("1100\r\n");
+    this->send_request_("1100\r\n");
+}
+
+void LuxtronikV1Component::send_request_(const char *cmd) {
+    if (this->paused_ || this->parent_ == nullptr) {
+        return;
+    }
+    this->parent_->write_str(cmd);
 }
 
 void LuxtronikV1Component::loop() {
@@ -49,7 +56,7 @@ void LuxtronikV1Component::loop() {
 void LuxtronikV1Component::update() {
     ESP_LOGD(TAG, "Polling Luxtronik V1 Component...");
     if (this->parent_ != nullptr) {
-        this->parent_->write_str("1100\r\n");
+        this->send_request_("1100\r\n");
     }
 }
 
@@ -147,7 +154,7 @@ void LuxtronikV1Component::parse_temperatur_message_(const char* message) {
     if (idx < values.size()) publish_temp(temperatur_raumstation_, values[idx++], "Raumstation");
 
     // Request input values after temperature values are parsed
-    this->parent_->write_str("1200\r\n");
+    this->send_request_("1200\r\n");
 }
 
 void LuxtronikV1Component::parse_input_message_(const char* message) {
@@ -186,7 +193,7 @@ void LuxtronikV1Component::parse_input_message_(const char* message) {
     if (idx < values.size()) publish_input(eingang_fremdstromanode_, values[idx++], "Fremdstromanode");
 
     // Request output values after input values are parsed
-    this->parent_->write_str("1300\r\n");
+    this->send_request_("1300\r\n");
 }
 
 void LuxtronikV1Component::parse_output_message_(const char* message) {
@@ -232,7 +239,7 @@ void LuxtronikV1Component::parse_output_message_(const char* message) {
     if (idx < values.size()) publish_output(ausgang_zweiter_waermeerzeuger_stoerung_, values[idx++], "ZWE Störung");
 
     // Request heizungs-modus after input values are parsed
-    this->parent_->write_str("3405\r\n");
+    this->send_request_("3405\r\n");
 
 }
 
@@ -280,7 +287,7 @@ void LuxtronikV1Component::parse_modus_heizung_message_(const char* message) {
     }
     
     // Request hot water mode after heating mode
-    this->parent_->write_str("3505\r\n");
+    this->send_request_("3505\r\n");
 }
 
 // Update parse_modus_warmwasser_message_
@@ -315,7 +322,7 @@ void LuxtronikV1Component::parse_modus_warmwasser_message_(const char* message) 
     }
     
     // Request status values after warmwater mode
-    this->parent_->write_str("1700\r\n");
+    this->send_request_("1700\r\n");
 }
 
 std::string LuxtronikV1Component::get_betriebszustand_text_(int state) {
@@ -407,7 +414,7 @@ void LuxtronikV1Component::parse_status_message_(const char* message) {
     }
 
     // Request error values after status values are parsed
-    this->parent_->write_str("1500\r\n");
+    this->send_request_("1500\r\n");
 }
 
 void LuxtronikV1Component::parse_error_message_(const char* message) {
@@ -630,7 +637,7 @@ void LuxtronikV1Component::parse_error_message_(const char* message) {
         }
     }
     // Request working hours after error values are parsed
-    this->parent_->write_str("1450\r\n");
+    this->send_request_("1450\r\n");
 }
 
 void LuxtronikV1Component::parse_operatinghours_message_(const char* message) {

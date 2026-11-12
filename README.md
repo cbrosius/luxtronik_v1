@@ -128,3 +128,17 @@ Die IP-Adresse findest in deinem Router/DHCP-Server oder direkt im LOG des ESPHo
 - https://bitbucket.org/tobylorenz/ait_luxtronik/src/master/
 - https://www.haustechnikdialog.de/Forum/t/82258/Alpha-InnoTec-Anschluss-am-PC-klappt-nicht?page=23 
 
+
+
+## Betriebsart aus Home Assistant umstellen (optional, mit Schutz)
+
+Die Datei `luxtronik-v1-esp32-modes.yaml` ergänzt zwei Auswahlfelder "Modus Heizung" und "Modus Warmwasser" (Auto, ZWE, Party, Ferien, aus).
+
+Die Steuerung speichert jede Änderung mit `999` im EEPROM, das nur begrenzt oft beschrieben werden kann. Deshalb gilt im Beispiel:
+
+- geschrieben wird nur, wenn du das Feld bedienst, nie beim Booten oder beim Zurücklesen
+- nur wenn der aktuelle Wert gelesen wurde und sich vom Wunsch unterscheidet
+- 5 Minuten Sperrfrist zwischen zwei Schreibvorgängen
+- die normalen Abfragen sind während des Schreibens pausiert (`set_paused`), danach wird zurückgelesen
+
+Bitte nicht aus Automationen verwenden, die häufig schalten. Hängt die Steuerung nach einem abgebrochenen Schreibvorgang im Programmiermodus, hilft ein Senden von `3401;0` und `999`.
